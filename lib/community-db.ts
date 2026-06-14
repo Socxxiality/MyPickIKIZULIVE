@@ -109,6 +109,16 @@ export function saveBallot(voterId: string, picks: Picks): void {
   globalCommunity.ikizuliveCommunityStatsCache = undefined;
 }
 
+export function deleteBallot(voterId: string): void {
+  if (!/^[A-Za-z0-9_-]{8,100}$/.test(voterId)) {
+    throw new Error("Invalid anonymous voter ID.");
+  }
+
+  const voterKey = createHash("sha256").update(voterId).digest("hex");
+  getDb().prepare("DELETE FROM ballots WHERE voter_key = ?").run(voterKey);
+  globalCommunity.ikizuliveCommunityStatsCache = undefined;
+}
+
 function categoryFor(song: Song): "group" | "project" | "members" {
   if (song.bucket === "group") return "group";
   if (song.bucket === "project") return "project";

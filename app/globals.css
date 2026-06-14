@@ -550,28 +550,64 @@ button:disabled {
   line-height: 1.7;
 }
 
-.community-submit {
+.community-sync-status {
   display: flex;
   min-width: 190px;
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
+  justify-content: flex-start;
+  gap: 10px;
   padding: 14px 15px 14px 19px;
-  border: 0;
+  border: 1px solid rgba(16, 36, 58, 0.1);
   border-radius: 16px;
-  color: white;
-  background: linear-gradient(135deg, #1d87ba, #665dc0);
-  box-shadow: 0 15px 32px rgba(55, 103, 177, 0.24);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 12px 28px rgba(16, 36, 58, 0.08);
   font-weight: 800;
 }
 
-.community-submit small {
+.community-sync-status > i {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #aab3bb;
+}
+
+.community-sync-status.is-saving > i {
+  background: #e6ad35;
+  box-shadow: 0 0 0 5px rgba(230, 173, 53, 0.14);
+  animation: sync-pulse 900ms ease-in-out infinite alternate;
+}
+
+.community-sync-status.is-saved > i {
+  background: #48a878;
+  box-shadow: 0 0 0 5px rgba(72, 168, 120, 0.13);
+}
+
+.community-sync-status.is-error > i {
+  background: #d65c67;
+  box-shadow: 0 0 0 5px rgba(214, 92, 103, 0.13);
+}
+
+.community-sync-status > span {
+  flex: 1;
+  font-size: 12px;
+}
+
+.community-sync-status small {
   padding: 5px 8px;
   border-radius: 8px;
-  color: white;
-  background: rgba(255, 255, 255, 0.17);
+  color: var(--blue-dark);
+  background: rgba(43, 155, 211, 0.1);
   font-size: 10px;
   letter-spacing: 0;
+}
+
+@keyframes sync-pulse {
+  to {
+    opacity: 0.45;
+    transform: scale(0.78);
+  }
 }
 
 .community-stats {

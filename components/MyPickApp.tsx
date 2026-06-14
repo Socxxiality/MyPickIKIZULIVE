@@ -104,6 +104,7 @@ export default function MyPickApp() {
   const [showTitles, setShowTitles] = useState(true);
   const [transparent, setTransparent] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [picksReady, setPicksReady] = useState(false);
   const urls = useRef<string[]>([]);
 
   useEffect(() => {
@@ -120,6 +121,8 @@ export default function MyPickApp() {
       setName(localStorage.getItem(NAME_KEY) ?? "");
     } catch {
       localStorage.removeItem(STORAGE_KEY);
+    } finally {
+      setPicksReady(true);
     }
   }, []);
 
@@ -327,7 +330,12 @@ export default function MyPickApp() {
         </section>
       </div>
 
-      <CommunityPicks active={view === "community"} lang={lang} picks={picks} />
+      <CommunityPicks
+        active={view === "community"}
+          lang={lang}
+          picks={picks}
+          picksReady={picksReady}
+        />
 
       <footer className="site-footer">
         <div className="footer-brand">

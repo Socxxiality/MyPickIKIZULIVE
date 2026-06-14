@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
-import { getCommunityStats, saveBallot, validatePicks } from "@/lib/community-db";
+import {
+  deleteBallot,
+  getCommunityStats,
+  saveBallot,
+  validatePicks,
+} from "@/lib/community-db";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const MAX_BODY_BYTES = 8 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_POSTS = 10;
+const RATE_LIMIT_MAX_POSTS = 30;
 const RATE_LIMIT_MAX_CLIENTS = 5_000;
 
 interface RateLimitEntry {
@@ -132,6 +137,49 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Invalid ballot.";
+    return errorResponse(message, 400);
+  }
+}
+
+export async function DELETE(request: Request) {
+  if (!isSameOrigin(request)) {
+    return errorResponse("Cross-site submissions are not allowed.", 403);
+  }
+
+  if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+    return errorResponse("Content-Type must be application/json.", 415);
+  }
+
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    return errorResponse("Request body is too large.", 413);
+  }
+
+  const retryAfter = checkRateLimit(request);
+  if (retryAfter) {
+    return errorResponse("Too many submissions. Please wait briefly.", 429, retryAfter);
+  }
+
+  try {
+    const rawBody = await request.text();
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
+      return errorResponse("Request body is too large.", 413);
+    }
+
+    const body = JSON.parse(rawBody) as { voterId?: unknown };
+    if (typeof body.voterId !== "string") {
+      throw new Error("Missing anonymous voter ID.");
+    }
+
+    deleteBallot(body.voterId);
+    return NextResponse.json(getCommunityStats(), {
+      headers: {
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Invalid request.";
     return errorResponse(message, 400);
   }
 }

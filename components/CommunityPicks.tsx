@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Picks } from "@/components/ExportBoards";
 import {
   EMPTY_COMMUNITY_STATS,
@@ -14,16 +14,18 @@ interface CommunityPicksProps {
   active: boolean;
   lang: Lang;
   picks: Picks;
+  picksReady: boolean;
 }
 
 const VOTER_KEY = "ikizulive_community_voter_v1";
+const LAST_SYNC_KEY = "ikizulive_community_last_picks_v1";
 
 const text = {
   en: {
     eyebrow: "ANONYMOUS COMMUNITY RESULTS",
     title: "Community",
     accent: "Picks",
-    intro: "See which songs appear most often across submitted IKIZULIVE! boards.",
+    intro: "See which songs are picked most often. Your board updates the results automatically.",
     ballots: "pick boards",
     selections: "song selections",
     updated: "last updated",
@@ -31,6 +33,9 @@ const text = {
     update: "Update my picks",
     sending: "Saving...",
     saved: "Your anonymous community ballot has been saved.",
+    waiting: "Waiting for picks",
+    syncing: "Syncing...",
+    synced: "Synced automatically",
     empty: "No community ballots yet. Your picks can be the first.",
     group: "Group songs",
     project: "Project songs",
@@ -50,6 +55,9 @@ const text = {
     update: "選曲を更新",
     sending: "保存中...",
     saved: "匿名のコミュニティ選曲を保存しました。",
+    waiting: "選曲を待っています",
+    syncing: "同期中...",
+    synced: "自動同期済み",
     empty: "まだ投稿がありません。最初のピックを追加できます。",
     group: "グループ楽曲",
     project: "プロジェクト楽曲",
@@ -121,14 +129,27 @@ function RankingSection({
   );
 }
 
-export default function CommunityPicks({ active, lang, picks }: CommunityPicksProps) {
+export default function CommunityPicks({
+  active,
+  lang,
+  picks,
+  picksReady,
+}: CommunityPicksProps) {
   const [stats, setStats] = useState<CommunityStats>(EMPTY_COMMUNITY_STATS);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [syncState, setSyncState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [notice, setNotice] = useState("");
+  const syncVersion = useRef(0);
   const t = text[lang];
   const selectedCount = Object.keys(picks).length;
+  const serializedPicks = useMemo(
+    () => JSON.stringify(
+      Object.fromEntries(
+        Object.entries(picks).sort(([left], [right]) => left.localeCompare(right)),
+      ),
+    ),
+    [picks],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -148,28 +169,80 @@ export default function CommunityPicks({ active, lang, picks }: CommunityPicksPr
     if (active) void load();
   }, [active, load]);
 
-  const submit = async () => {
-    setSubmitting(true);
-    setNotice("");
-    try {
-      const response = await fetch("/api/community", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ voterId: getVoterId(), picks }),
-      });
-      const body = await response.json() as CommunityStats | { error: string };
-      if (!response.ok || "error" in body) {
-        throw new Error("error" in body ? body.error : "Could not save ballot.");
-      }
-      setStats(body);
-      setSubmitted(true);
-      setNotice(t.saved);
-    } catch (error) {
-      setNotice(error instanceof Error ? error.message : t.retry);
-    } finally {
-      setSubmitting(false);
+  useEffect(() => {
+    if (!picksReady) return;
+
+    const lastSyncedPicks = localStorage.getItem(LAST_SYNC_KEY);
+
+    if (selectedCount === 0 && !localStorage.getItem(VOTER_KEY)) {
+      localStorage.removeItem(LAST_SYNC_KEY);
+      setSyncState("idle");
+      return;
     }
-  };
+    if (selectedCount > 0 && lastSyncedPicks === serializedPicks) {
+      setSyncState("saved");
+      return;
+    }
+
+    const version = ++syncVersion.current;
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setSyncState("saving");
+      setNotice("");
+      try {
+        const voterId = selectedCount === 0
+          ? localStorage.getItem(VOTER_KEY)
+          : getVoterId();
+        if (!voterId) {
+          localStorage.removeItem(LAST_SYNC_KEY);
+          setSyncState("idle");
+          return;
+        }
+
+        const response = await fetch("/api/community", {
+          method: selectedCount === 0 ? "DELETE" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(selectedCount === 0
+            ? { voterId }
+            : {
+                voterId,
+                picks: JSON.parse(serializedPicks) as Picks,
+              }),
+          signal: controller.signal,
+        });
+        const body = await response.json() as CommunityStats | { error: string };
+        if (!response.ok || "error" in body) {
+          throw new Error("error" in body ? body.error : "Could not sync picks.");
+        }
+        if (version !== syncVersion.current) return;
+        if (selectedCount === 0) {
+          localStorage.removeItem(LAST_SYNC_KEY);
+        } else {
+          localStorage.setItem(LAST_SYNC_KEY, serializedPicks);
+        }
+        setStats(body);
+        setSyncState(selectedCount === 0 ? "idle" : "saved");
+      } catch (error) {
+        if (controller.signal.aborted || version !== syncVersion.current) return;
+        setSyncState("error");
+        setNotice(error instanceof Error ? error.message : t.retry);
+      }
+    }, 700);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [picksReady, selectedCount, serializedPicks, t.retry]);
+
+  const syncLabel =
+    syncState === "saving"
+      ? t.syncing
+      : syncState === "saved"
+        ? t.synced
+        : syncState === "error"
+          ? t.retry
+          : t.waiting;
 
   const updated = stats.updatedAt
     ? new Intl.DateTimeFormat(lang === "ja" ? "ja-JP" : "en-GB", {
@@ -186,14 +259,11 @@ export default function CommunityPicks({ active, lang, picks }: CommunityPicksPr
           <h2>{t.title} <em>{t.accent}</em></h2>
           <p>{t.intro}</p>
         </div>
-        <button
-          className="community-submit"
-          disabled={!selectedCount || submitting}
-          onClick={submit}
-        >
-          <span>{submitting ? t.sending : submitted ? t.update : t.submit}</span>
+        <div className={`community-sync-status is-${syncState}`} role="status" aria-live="polite">
+          <i />
+          <span>{syncLabel}</span>
           <small>{selectedCount} / 16</small>
-        </button>
+        </div>
       </header>
 
       <div className="community-stats">
