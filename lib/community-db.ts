@@ -22,7 +22,9 @@ const validSlots = new Set([
   "project#0",
   "project#1",
   "project#2",
-  ...MEMBERS.map((member) => `${member.id}#0`),
+  "solo#0",
+  "solo#1",
+  "solo#2",
 ]);
 
 const globalCommunity = globalThis as typeof globalThis & {
@@ -61,8 +63,8 @@ export function validatePicks(input: unknown): Picks {
   }
 
   const entries = Object.entries(input);
-  if (entries.length < 1 || entries.length > 16) {
-    throw new Error("A ballot must contain between 1 and 16 picks.");
+  if (entries.length < 1 || entries.length > 9) {
+    throw new Error("A ballot must contain between 1 and 9 picks.");
   }
 
   const clean: Picks = {};
@@ -70,7 +72,7 @@ export function validatePicks(input: unknown): Picks {
 
   for (const [slot, slug] of entries) {
     if (!validSlots.has(slot) || typeof slug !== "string") {
-      throw new Error("The ballot contains an invalid slot.");
+      continue;
     }
 
     const song = SONG_BY_SLUG[slug];
@@ -122,7 +124,7 @@ export function deleteBallot(voterId: string): void {
 function categoryFor(song: Song): "group" | "project" | "members" {
   if (song.bucket === "group") return "group";
   if (song.bucket === "project") return "project";
-  return memberIds.has(song.bucket) ? "members" : "members";
+  return "members";
 }
 
 export function getCommunityStats(): CommunityStats {

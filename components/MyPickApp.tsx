@@ -31,8 +31,8 @@ const copy = {
     groupHelp: "Choose your top three songs by いきづらい部！",
     project: "Project songs",
     projectHelp: "Units, aliases, and collaboration songs.",
-    members: "Member solo picks",
-    membersHelp: "Choose one song for each of the ten members.",
+    members: "Solo songs",
+    membersHelp: "Choose up to three member solo songs.",
     name: "Your name (optional)",
     download: "Download images",
     pickerTab: "Build my picks",
@@ -46,8 +46,8 @@ const copy = {
     groupHelp: "いきづらい部！の楽曲から3曲を選択",
     project: "プロジェクト楽曲",
     projectHelp: "ユニット・別名義・コラボ楽曲から3曲を選択",
-    members: "メンバーソロ",
-    membersHelp: "10人それぞれのお気に入り楽曲を1曲ずつ選択",
+    members: "メンバーソロ楽曲",
+    membersHelp: "メンバーのソロ楽曲から3曲を選択",
     name: "名前（任意）",
     download: "画像をダウンロード",
     pickerTab: "選曲を作る",
@@ -59,6 +59,7 @@ const copy = {
 
 const STORAGE_KEY = "ikizulive_mypicks_v1";
 const NAME_KEY = "ikizulive_mypick_name";
+const TOTAL_PICK_SLOTS = 9;
 
 function SongSlot({
   slot,
@@ -113,7 +114,11 @@ export default function MyPickApp() {
       if (stored) {
         const parsed = JSON.parse(stored) as Picks;
         const cleaned = Object.fromEntries(
-          Object.entries(parsed).filter(([, slug]) => Boolean(SONG_BY_SLUG[slug])),
+          Object.entries(parsed).filter(
+            ([slot, slug]) =>
+              Boolean(SONG_BY_SLUG[slug]) &&
+              (slot.startsWith("group#") || slot.startsWith("project#") || slot.startsWith("solo#"))
+          ),
         );
         setPicks(cleaned);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
@@ -239,7 +244,7 @@ export default function MyPickApp() {
           <input value={name} maxLength={40} onChange={(event) => updateName(event.target.value)} placeholder="Selected by..." />
         </label>
         <div className="control-actions">
-          <span><strong>{selectedCount}</strong> / 16 {t.selected}</span>
+          <span><strong>{selectedCount}</strong> / {TOTAL_PICK_SLOTS} {t.selected}</span>
           <button className="secondary-button" onClick={clearAll} disabled={!selectedCount}>{t.clear}</button>
           <button className="primary-button" onClick={generate} disabled={generating || !selectedCount}>
             {generating ? "Generating..." : t.download}
@@ -307,25 +312,23 @@ export default function MyPickApp() {
           </div>
           <p>{t.membersHelp}</p>
         </header>
-        <div className="member-grid">
-          {MEMBERS.map((member, index) => (
-            <article className="member-card" key={member.id} style={{ "--member-color": member.color } as React.CSSProperties}>
-              <header>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <strong>{lang === "ja" ? member.nameJa : member.name}</strong>
-                  <small>{lang === "ja" ? member.name : member.nameJa}</small>
-                </div>
-              </header>
+        <div className="feature-card solo-card">
+          <div className="feature-label">
+            <strong>MEMBER SOLO</strong>
+            <span>SOLO SONGS</span>
+          </div>
+          <div className="three-slots">
+            {[0, 1, 2].map((index) => (
               <SongSlot
-                slot={`${member.id}#0`}
-                placeholder="PICK SONG"
-                color={member.color}
+                key={index}
+                slot={`solo#${index}`}
+                placeholder={`PICK #${index + 1}`}
+                color="#e2779d"
                 picks={picks}
-                onOpen={() => setActive({ bucket: member.id, slot: `${member.id}#0`, label: member.nameJa, color: member.color })}
+                onOpen={() => setActive({ bucket: "solo", slot: `solo#${index}`, label: `${t.members} #${index + 1}`, color: "#e2779d" })}
               />
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
         </section>
       </div>

@@ -1,4 +1,4 @@
-export type SongBucket = "group" | "project" | MemberId;
+export type SongBucket = "group" | "project" | "solo" | MemberId;
 
 export type MemberId =
   | "polka"
@@ -57,35 +57,35 @@ export const SONGS: Song[] = [
   { slug: "silent-stella", title: "Silent Stella", bucket: "project", artist: "SH1ON", cover: "/covers/shion-unit.jpeg", source: official },
   { slug: "next-card", title: "NEXT CARD", bucket: "project", artist: "AiScReam", cover: "/covers/next-card.jpeg", source: official },
 
-  { slug: "asakusa-guilty-girl", title: "浅草Guilty Girlの歌", bucket: "polka", artist: "高橋ポルカ", cover: "/covers/polka.jpeg", source: official },
-  { slug: "odoru-polka", title: "オドルポルカ", bucket: "polka", artist: "高橋ポルカ", cover: "/covers/polka.jpeg", source: official },
+  { slug: "asakusa-guilty-girl", title: "浅草Guilty Girlの歌", bucket: "solo", artist: "高橋ポルカ", cover: "/covers/polka.jpeg", source: official },
+  { slug: "odoru-polka", title: "オドルポルカ", bucket: "solo", artist: "高橋ポルカ", cover: "/covers/polka.jpeg", source: official },
 
-  { slug: "public-style", title: "Public Style", bucket: "mai", artist: "麻布麻衣", cover: "/covers/mai.jpeg", source: official },
-  { slug: "maimai-mode", title: "ひっさつマイマイモード", bucket: "mai", artist: "麻布麻衣", cover: "/covers/mai.jpeg", source: official },
+  { slug: "public-style", title: "Public Style", bucket: "solo", artist: "麻布麻衣", cover: "/covers/mai.jpeg", source: official },
+  { slug: "maimai-mode", title: "ひっさつマイマイモード", bucket: "solo", artist: "麻布麻衣", cover: "/covers/mai.jpeg", source: official },
 
-  { slug: "itsuka-ao", title: "いつか碧", bucket: "akira", artist: "五桐 玲", cover: "/covers/akira.jpeg", source: official },
-  { slug: "jet-starter", title: "ジェットスターター", bucket: "akira", artist: "五桐 玲", cover: "/covers/akira.jpeg", source: official },
+  { slug: "itsuka-ao", title: "いつか碧", bucket: "solo", artist: "五桐 玲", cover: "/covers/akira.jpeg", source: official },
+  { slug: "jet-starter", title: "ジェットスターター", bucket: "solo", artist: "五桐 玲", cover: "/covers/akira.jpeg", source: official },
 
-  { slug: "hibana", title: "HIBANA―火花―", bucket: "hanabi", artist: "駒形花火", cover: "/covers/hanabi.jpeg", source: official },
-  { slug: "first-ride", title: "First Ride", bucket: "hanabi", artist: "駒形花火", cover: "/covers/hanabi.jpeg", source: official },
+  { slug: "hibana", title: "HIBANA―火花―", bucket: "solo", artist: "駒形花火", cover: "/covers/hanabi.jpeg", source: official },
+  { slug: "first-ride", title: "First Ride", bucket: "solo", artist: "駒形花火", cover: "/covers/hanabi.jpeg", source: official },
 
-  { slug: "homerun-queen", title: "HomeRun Queen!!", bucket: "miracle", artist: "金澤奇跡", cover: "/covers/miracle.jpeg", source: official },
-  { slug: "magical-recipe", title: "マジカル♡レシピ・シルブプレ！", bucket: "miracle", artist: "金澤奇跡", cover: "/covers/miracle.jpeg", source: official },
+  { slug: "homerun-queen", title: "HomeRun Queen!!", bucket: "solo", artist: "金澤奇跡", cover: "/covers/miracle.jpeg", source: official },
+  { slug: "magical-recipe", title: "マジカル♡レシピ・シルブプレ！", bucket: "solo", artist: "金澤奇跡", cover: "/covers/miracle.jpeg", source: official },
 
-  { slug: "one-time-password", title: "恋のワンタイムパスワード", bucket: "noriko", artist: "調布のりこ", cover: "/covers/noriko.jpeg", source: official },
-  { slug: "centimeter-rendezvous", title: "センチメートル・ランデヴー", bucket: "noriko", artist: "調布のりこ", cover: "/covers/noriko.jpeg", source: official },
+  { slug: "one-time-password", title: "恋のワンタイムパスワード", bucket: "solo", artist: "調布のりこ", cover: "/covers/noriko.jpeg", source: official },
+  { slug: "centimeter-rendezvous", title: "センチメートル・ランデヴー", bucket: "solo", artist: "調布のりこ", cover: "/covers/noriko.jpeg", source: official },
 
-  { slug: "pray-for-love", title: "Pray for love", bucket: "yukuri", artist: "春宮ゆくり", cover: "/covers/yukuri.jpeg", source: official },
-  { slug: "happy-end", title: "二人はいつでもHappy End", bucket: "yukuri", artist: "春宮ゆくり", cover: "/covers/yukuri.jpeg", source: official },
+  { slug: "pray-for-love", title: "Pray for love", bucket: "solo", artist: "春宮ゆくり", cover: "/covers/yukuri.jpeg", source: official },
+  { slug: "happy-end", title: "二人はいつでもHappy End", bucket: "solo", artist: "春宮ゆくり", cover: "/covers/yukuri.jpeg", source: official },
 
-  { slug: "night-polaris", title: "キミは夜のポラリス", bucket: "aurora", artist: "此花輝夜", cover: "/covers/aurora.jpeg", source: official },
-  { slug: "clarit-bright", title: "クラリトブライト", bucket: "aurora", artist: "此花輝夜", cover: "/covers/aurora.jpeg", source: official },
+  { slug: "night-polaris", title: "キミは夜のポラリス", bucket: "solo", artist: "此花輝夜", cover: "/covers/aurora.jpeg", source: official },
+  { slug: "clarit-bright", title: "クラリトブライト", bucket: "solo", artist: "此花輝夜", cover: "/covers/aurora.jpeg", source: official },
 
-  { slug: "little-green-committee", title: "Little Green委員会", bucket: "midori", artist: "山田真緑", cover: "/covers/midori.jpeg", source: official },
-  { slug: "save-the-earth", title: "LOVE♡YOU♡Save the EARTH!!", bucket: "midori", artist: "山田真緑", cover: "/covers/midori.jpeg", source: official },
+  { slug: "little-green-committee", title: "Little Green委員会", bucket: "solo", artist: "山田真緑", cover: "/covers/midori.jpeg", source: official },
+  { slug: "save-the-earth", title: "LOVE♡YOU♡Save the EARTH!!", bucket: "solo", artist: "山田真緑", cover: "/covers/midori.jpeg", source: official },
 
-  { slug: "ikitakunai-every-day", title: "イキタクナイevery day", bucket: "shion", artist: "佐々木翔音", cover: "/covers/shion.jpeg", source: official },
-  { slug: "trick-or-toxic", title: "Trick or Toxic", bucket: "shion", artist: "佐々木翔音", cover: "/covers/shion.jpeg", source: official },
+  { slug: "ikitakunai-every-day", title: "イキタクナイevery day", bucket: "solo", artist: "佐々木翔音", cover: "/covers/shion.jpeg", source: official },
+  { slug: "trick-or-toxic", title: "Trick or Toxic", bucket: "solo", artist: "佐々木翔音", cover: "/covers/shion.jpeg", source: official },
 ];
 
 export const SONG_BY_SLUG = Object.fromEntries(SONGS.map((song) => [song.slug, song]));

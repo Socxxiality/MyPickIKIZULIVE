@@ -262,7 +262,7 @@ export default function CommunityPicks({
         <div className={`community-sync-status is-${syncState}`} role="status" aria-live="polite">
           <i />
           <span>{syncLabel}</span>
-          <small>{selectedCount} / 16</small>
+          <small>{selectedCount} / 9</small>
         </div>
       </header>
 

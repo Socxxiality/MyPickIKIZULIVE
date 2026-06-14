@@ -23,7 +23,7 @@ function Spectrum({ mutedFrom = 10 }: { mutedFrom?: number }) {
   );
 }
 
-function ExportHeader({ section, page }: { section: string; page: string }) {
+function ExportHeader({ section }: { section: string }) {
   return (
     <header className="export-header">
       <small>イキヅライブ！ LOVELIVE! BLUEBIRD</small>
@@ -31,7 +31,6 @@ function ExportHeader({ section, page }: { section: string; page: string }) {
       <p>いきづらい部！ お気に入り楽曲選</p>
       <div>
         <span>{section}</span>
-        <span>{page}</span>
       </div>
     </header>
   );
@@ -79,31 +78,7 @@ function Cover({
   );
 }
 
-function MemberRow({
-  member,
-  picks,
-  showTitles,
-}: {
-  member: Member;
-  picks: Picks;
-  showTitles: boolean;
-}) {
-  return (
-    <article className="export-member-row" style={{ borderColor: member.color }}>
-      <div className="export-member-label" style={{ background: member.color }}>
-        <strong>{member.name}</strong>
-        <span>{member.nameJa}</span>
-      </div>
-      <Cover
-        picks={picks}
-        slot={`${member.id}#0`}
-        placeholder="PICK"
-        showTitles={showTitles}
-        compact
-      />
-    </article>
-  );
-}
+
 
 export default function ExportBoards({
   picks,
@@ -116,7 +91,7 @@ export default function ExportBoards({
   return (
     <div className="export-stage" aria-hidden>
       <section id="export-songs" className={boardClass}>
-        <ExportHeader section="GROUP & PROJECT SONGS" page="1 / 2" />
+        <ExportHeader section="GROUP, PROJECT & SOLO SONGS" />
         <Spectrum />
 
         <div className="export-block group-block">
@@ -149,26 +124,21 @@ export default function ExportBoards({
           </div>
         </div>
 
-        <div className="export-note">
-          <strong>10 MEMBER PICKS</strong>
-          <span>Continue on page 2</span>
+        <div className="export-block solo-block">
+          <h2>MEMBER SOLO SONGS</h2>
+          <div className="export-three">
+            {[0, 1, 2].map((index) => (
+              <Cover
+                key={index}
+                picks={picks}
+                slot={`solo#${index}`}
+                placeholder={`#${index + 1}`}
+                showTitles={showTitles}
+              />
+            ))}
+          </div>
         </div>
-        <ExportFooter name={name} />
-      </section>
 
-      <section id="export-members" className={boardClass}>
-        <ExportHeader section="MEMBER SOLO PICKS" page="2 / 2" />
-        <Spectrum />
-        <div className="export-members-grid">
-          {MEMBERS.map((member) => (
-            <MemberRow
-              key={member.id}
-              member={member}
-              picks={picks}
-              showTitles={showTitles}
-            />
-          ))}
-        </div>
         <ExportFooter name={name} />
       </section>
     </div>
