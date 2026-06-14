@@ -101,7 +101,7 @@ export default function MyPickApp() {
   const [lang, setLang] = useState<Lang>("en");
   const [view, setView] = useState<View>("picker");
   const [active, setActive] = useState<ActivePicker | null>(null);
-  const [previews, setPreviews] = useState<{ first: string; second: string } | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [showTitles, setShowTitles] = useState(true);
   const [transparent, setTransparent] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -160,7 +160,7 @@ export default function MyPickApp() {
   const closePreviews = useCallback(() => {
     for (const url of urls.current) URL.revokeObjectURL(url);
     urls.current = [];
-    setPreviews(null);
+    setPreview(null);
   }, []);
 
   const generate = useCallback(async () => {
@@ -175,11 +175,10 @@ export default function MyPickApp() {
         quality: 0.92,
       } as const;
       const first = await domToBlob(document.getElementById("export-songs")!, options);
-      const second = await domToBlob(document.getElementById("export-members")!, options);
       for (const url of urls.current) URL.revokeObjectURL(url);
-      const next = [URL.createObjectURL(first), URL.createObjectURL(second)];
+      const next = [URL.createObjectURL(first)];
       urls.current = next;
-      setPreviews({ first: next[0], second: next[1] });
+      setPreview(next[0]);
     } catch (error) {
       console.error(error);
       window.alert("Could not generate the images. Please try again.");
@@ -189,7 +188,7 @@ export default function MyPickApp() {
   }, []);
 
   useEffect(() => {
-    if (!previews) return;
+    if (!preview) return;
     const timer = window.setTimeout(generate, 100);
     return () => window.clearTimeout(timer);
   }, [generate, showTitles, transparent]);
@@ -390,9 +389,9 @@ export default function MyPickApp() {
 
       <ExportBoards picks={picks} name={name} showTitles={showTitles} transparent={transparent} />
 
-      {previews && (
+      {preview && (
         <PreviewModal
-          images={previews}
+          image={preview}
           showTitles={showTitles}
           transparent={transparent}
           generating={generating}

@@ -1,7 +1,7 @@
 "use client";
 
 interface PreviewModalProps {
-  images: { first: string; second: string };
+  image: string;
   showTitles: boolean;
   transparent: boolean;
   generating: boolean;
@@ -18,7 +18,7 @@ function download(url: string, filename: string) {
 }
 
 export default function PreviewModal({
-  images,
+  image,
   showTitles,
   transparent,
   generating,
@@ -33,24 +33,18 @@ export default function PreviewModal({
         <header className="preview-header">
           <div>
             <strong>Your My Pick images</strong>
-            <span>Two portrait boards, ready for sharing.</span>
+            <span>One portrait board, ready for sharing.</span>
           </div>
           <button className="icon-button dark" onClick={onClose} aria-label="Close">
             ×
           </button>
         </header>
 
-        <div className="preview-images">
+        <div className="preview-images single-image">
           <figure>
-            <img src={images.first} alt="Group and project song board" />
-            <button onClick={() => download(images.first, "mypick-ikizulive-songs.webp")}>
-              Download songs
-            </button>
-          </figure>
-          <figure>
-            <img src={images.second} alt="Member song board" />
-            <button onClick={() => download(images.second, "mypick-ikizulive-members.webp")}>
-              Download members
+            <img src={image} alt="My Pick IKIZULIVE! board" />
+            <button onClick={() => download(image, "mypick-ikizulive.webp")}>
+              Download image
             </button>
           </figure>
         </div>
@@ -76,11 +70,10 @@ export default function PreviewModal({
             className="primary-button"
             disabled={generating}
             onClick={() => {
-              download(images.first, "mypick-ikizulive-songs.webp");
-              download(images.second, "mypick-ikizulive-members.webp");
+              download(image, "mypick-ikizulive.webp");
             }}
           >
-            {generating ? "Regenerating..." : "Download both"}
+            {generating ? "Regenerating..." : "Download image"}
           </button>
         </footer>
       </section>
