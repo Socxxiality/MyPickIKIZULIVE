@@ -151,7 +151,8 @@ export function getCommunityStats(): CommunityStats {
       continue;
     }
 
-    for (const slug of Object.values(picks)) {
+    for (const [slot, slug] of Object.entries(picks)) {
+      if (!validSlots.has(slot)) continue;
       const song = SONG_BY_SLUG[slug];
       if (!song) continue;
       const category = categoryFor(song);
